@@ -1,4 +1,5 @@
 require('dotenv').config(); 
+
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -6,27 +7,28 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 
-// --> NEW: Add a root route for health checks and to provide a friendly welcome message.
+// A root route for health checks
 app.get('/', (req, res) => {
-    res.status(200).json({ 
-        status: "ok", 
-        message: "SCL-HUB Mods API is running. Please use the /api/mods endpoint to get data." 
-    });
+    res.status(200).json({ status: "ok", message: "SCL-HUB Mods API is running." });
 });
 
-// Define our powerful mods endpoint
+// The final, working mods endpoint
 app.get('/api/mods', async (req, res) => {
     try {
         const apiKey = process.env.CURSEFORGE_API_KEY;
         if (!apiKey) {
             return res.status(500).json({ error: "Server is not configured." });
         }
+        
         const { page, searchFilter } = req.query;
+
         const response = await axios.get('https://api.curseforge.com/v1/mods/search', {
             headers: { 'x-api-key': apiKey, 'Accept': 'application/json' },
             params: {
                 gameId: 936838,
                 classId: 10007,
+                // --> NEW: Add a specific game version to get results <--
+                gameVersion: "1.0", 
                 pageSize: 12,
                 index: page ? (parseInt(page) - 1) * 12 : 0,
                 sortField: 'Popularity',
@@ -34,7 +36,9 @@ app.get('/api/mods', async (req, res) => {
                 searchFilter: searchFilter || ''
             }
         });
+        
         res.json(response.data);
+
     } catch (error) {
         console.error('Proxy Error:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to fetch mods from CurseForge.' });
