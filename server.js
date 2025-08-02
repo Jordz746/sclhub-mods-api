@@ -35,7 +35,7 @@ app.get('/api/mods', async (req, res) => {
             params: {
                 // --> THE CRITICAL FIX: Using the correct, working gameId <--
                 gameId: 83374,
-                classId: 10007,
+                classId: 6072,
                 pageSize: pageSize,
                 index: page ? (parseInt(page) - 1) * pageSize : 0,
                 sortField: 'Popularity',
